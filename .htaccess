@@ -1,0 +1,64 @@
+# ============================================================
+#  SAVORIA PREMIUM - Apache Configuration
+#  File: .htaccess
+# ============================================================
+
+Options -Indexes
+
+# ── PHP Settings ─────────────────────────────────────────────
+<IfModule mod_php.c>
+    php_flag display_errors Off
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+</IfModule>
+
+# ── Charset ──────────────────────────────────────────────────
+AddDefaultCharset UTF-8
+
+# ── Rewrite Engine ───────────────────────────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Redirect HTTP ke HTTPS (aktifkan saat VPS sudah ada SSL)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Arahkan semua request ke index.php (kecuali file/folder nyata)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [L,QSA]
+</IfModule>
+
+# ── Proteksi File Sensitif ───────────────────────────────────
+<FilesMatch "^(config\.php|composer\.(json|lock)|\.env|README\.md)$">
+    Require all denied
+</FilesMatch>
+
+# ── Proteksi Folder Backend dari Akses Langsung ──────────────
+<IfModule mod_rewrite.c>
+    RewriteRule ^backend/config/.*$ - [F,L]
+    RewriteRule ^backend/includes/.*$ - [F,L]
+    RewriteRule ^backend/bootstrap\.php$ - [F,L]
+    RewriteRule ^logs/.*$ - [F,L]
+</IfModule>
+
+# ── Cache Headers untuk Aset Statis ──────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css             "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg           "access plus 1 month"
+    ExpiresByType image/png            "access plus 1 month"
+    ExpiresByType image/webp           "access plus 1 month"
+    ExpiresByType image/svg+xml        "access plus 1 month"
+    ExpiresByType image/x-icon         "access plus 1 year"
+</IfModule>
+
+# ── Security Headers ─────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

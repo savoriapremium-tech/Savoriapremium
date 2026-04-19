@@ -1,0 +1,74 @@
+# ============================================================
+#  SAVORIA PREMIUM - Contoh Konfigurasi Nginx
+#  File: nginx.conf.example
+#  Salin dan sesuaikan ke /etc/nginx/sites-available/savoria
+# ============================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name savoriapremium.com www.savoriapremium.com;
+    # Ganti dengan domain/IP VPS Anda
+
+    root /var/www/savoria;
+    index index.php index.html;
+
+    # Charset
+    charset utf-8;
+
+    # ── Logging ───────────────────────────────────────────────
+    access_log /var/log/nginx/savoria_access.log;
+    error_log  /var/log/nginx/savoria_error.log;
+
+    # ── Proteksi File Sensitif ────────────────────────────────
+    location ~ ^/(config\.php|\.env|README\.md|composer\.(json|lock)) {
+        deny all;
+        return 404;
+    }
+
+    # ── Proteksi Folder Backend ───────────────────────────────
+    location ~ ^/backend/(config|includes|bootstrap\.php) {
+        deny all;
+        return 404;
+    }
+
+    # ── Proteksi Folder Logs ──────────────────────────────────
+    location ~ ^/logs/ {
+        deny all;
+        return 404;
+    }
+
+    # ── Aset Statis (cache 30 hari) ───────────────────────────
+    location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2|ttf)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+        try_files $uri =404;
+    }
+
+    # ── PHP via PHP-FPM ───────────────────────────────────────
+    location ~ \.php$ {
+        include        snippets/fastcgi-php.conf;
+        fastcgi_pass   unix:/run/php/php8.2-fpm.sock;
+        # Sesuaikan versi PHP: php8.0-fpm, php8.1-fpm, php8.2-fpm
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+
+    # ── Semua Request ke index.php ────────────────────────────
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # ── Security Headers ──────────────────────────────────────
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # ── SSL (aktifkan setelah certbot dijalankan) ─────────────
+    # listen 443 ssl;
+    # ssl_certificate     /etc/letsencrypt/live/savoriapremium.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/savoriapremium.com/privkey.pem;
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+}
