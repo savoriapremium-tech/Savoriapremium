@@ -19,7 +19,7 @@ define('APP_NAME',    'Savoria Premium');
 define('APP_TAGLINE', 'Semua Rasa Favoritmu Ada Di Sini');
 define('APP_EMAIL',   'savoriapremium@gmail.com');
 define('APP_PHONE',   '+62 858-9236-2876');
-define('APP_ADDRESS', 'Jl. Ciantra RT009/RW005, Sukadanau, Cikarang Selatan, Kab. Bekasi, Jawa Barat');
+define('APP_ADDRESS', 'Jl. Ciantra RT009/RW005, Sukadami, Cikarang Selatan, Kab. Bekasi, Jawa Barat');
 
 // ── Database ─────────────────────────────────────────────────
 define('DB_HOST',    'localhost');
